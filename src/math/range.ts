@@ -9,6 +9,8 @@ export function computeRange(
   currentValue: number,
   referenceValue?: number,
   exaggerate?: boolean,
+  /** Absolute minimum y-axis span; keeps tiny moves from filling the chart. */
+  minSpan = 0,
 ): { min: number; max: number } {
   let targetMin = Infinity
   let targetMax = -Infinity
@@ -39,6 +41,13 @@ export function computeRange(
     const margin = rawRange * marginFactor
     targetMin -= margin
     targetMax += margin
+  }
+
+  // Absolute floor: keep a minimum span so tiny moves don't fill the chart.
+  if (minSpan > 0 && targetMax - targetMin < minSpan) {
+    const mid = (targetMin + targetMax) / 2
+    targetMin = mid - minSpan / 2
+    targetMax = mid + minSpan / 2
   }
 
   return { min: targetMin, max: targetMax }

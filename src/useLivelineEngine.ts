@@ -34,6 +34,7 @@ interface EngineConfig {
   showPulse: boolean
   scrub: boolean
   exaggerate: boolean
+  minRange?: number
   degenOptions?: DegenOptions
   badgeTail: boolean
   badgeVariant: BadgeVariant
@@ -165,7 +166,7 @@ function updateWindowTransition(
       }
     }
     if (targetVisible.length > 0) {
-      const targetRange = computeRange(targetVisible, smoothValue, cfg.referenceLine?.value, cfg.exaggerate)
+      const targetRange = computeRange(targetVisible, smoothValue, cfg.referenceLine?.value, cfg.exaggerate, cfg.minRange)
       wt.rangeToMin = targetRange.min
       wt.rangeToMax = targetRange.max
     }
@@ -1543,7 +1544,7 @@ export function useLivelineEngine(
           if (p.time >= targetLeftEdge - 2 && p.time <= targetRightEdge) targetVisible.push(p)
         }
         if (targetVisible.length > 0) {
-          const range = computeRange(targetVisible, sv, cfg.referenceLine?.value, cfg.exaggerate)
+          const range = computeRange(targetVisible, sv, cfg.referenceLine?.value, cfg.exaggerate, cfg.minRange)
           if (range.min < unionMin) unionMin = range.min
           if (range.max > unionMax) unionMax = range.max
         }
@@ -1580,7 +1581,7 @@ export function useLivelineEngine(
       if (visible.length >= 2) {
         // Only include in range if series is at least partially visible
         if (alpha > 0.01) {
-          const range = computeRange(visible, sv, cfg.referenceLine?.value, cfg.exaggerate)
+          const range = computeRange(visible, sv, cfg.referenceLine?.value, cfg.exaggerate, cfg.minRange)
           if (range.min < globalMin) globalMin = range.min
           if (range.max > globalMax) globalMax = range.max
         }
@@ -1811,7 +1812,7 @@ export function useLivelineEngine(
     }
 
     // Compute + smooth Y range
-    const computedRange = computeRange(visible, smoothValue, cfg.referenceLine?.value, cfg.exaggerate)
+    const computedRange = computeRange(visible, smoothValue, cfg.referenceLine?.value, cfg.exaggerate, cfg.minRange)
     const isWindowTransitioning = transition.startMs > 0
     const rangeResult = updateRange(
       computedRange, rangeInitedRef.current,
