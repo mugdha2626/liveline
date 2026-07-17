@@ -3358,6 +3358,19 @@ function useLivelineEngine(canvasRef, containerRef, config) {
           visible.push(p);
         }
       }
+      if (visible.length > 0 && visible[0].time > leftEdge) {
+        let prev;
+        for (const p of effectivePoints) {
+          if (p.time <= leftEdge) prev = p;
+          else break;
+        }
+        if (prev) {
+          const p1 = visible[0];
+          const span = p1.time - prev.time;
+          const edgeValue = span > 0 ? prev.value + (p1.value - prev.value) * ((leftEdge - prev.time) / span) : prev.value;
+          visible.unshift({ time: leftEdge, value: edgeValue });
+        }
+      }
       if (visible.length < 2) {
         if (badgeRef.current) badgeRef.current.container.style.display = "none";
         rafRef.current = requestAnimationFrame(draw);
