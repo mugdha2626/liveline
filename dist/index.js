@@ -36,6 +36,9 @@ function resolveTheme(color, mode) {
     glowUp: "rgba(34, 197, 94, 0.18)",
     glowDown: "rgba(239, 68, 68, 0.18)",
     glowFlat: rgba(r, g, b, 0.12),
+    // Candlesticks — semantic green/red, overridable via the palette prop
+    candleUp: "#22c55e",
+    candleDown: "#ef4444",
     // Badge
     badgeOuterBg: isDark ? "rgba(40, 40, 40, 0.95)" : "rgba(255, 255, 255, 0.95)",
     badgeOuterShadow: isDark ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.15)",
@@ -1089,15 +1092,10 @@ function drawParticles(ctx, state, dt) {
 }
 
 // src/draw/candlestick.ts
-var BULL = "#22c55e";
-var BEAR = "#ef4444";
-var BULL_RGB = [34, 197, 94];
-var BEAR_RGB = [239, 68, 68];
-function blendColor2(t) {
-  const r = Math.round(BEAR_RGB[0] + (BULL_RGB[0] - BEAR_RGB[0]) * t);
-  const g = Math.round(BEAR_RGB[1] + (BULL_RGB[1] - BEAR_RGB[1]) * t);
-  const b = Math.round(BEAR_RGB[2] + (BULL_RGB[2] - BEAR_RGB[2]) * t);
-  return `rgb(${r},${g},${b})`;
+function blendColor2(t, up, down) {
+  const [ur, ug, ub] = parseRgb(up);
+  const [dr, dg, db] = parseRgb(down);
+  return `rgb(${Math.round(dr + (ur - dr) * t)},${Math.round(dg + (ug - dg) * t)},${Math.round(db + (ub - db) * t)})`;
 }
 function parseRgb(color) {
   const hex = color.match(/^#([0-9a-f]{6})$/i);
@@ -1107,6 +1105,16 @@ function parseRgb(color) {
   }
   const rgb = color.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
   if (rgb) return [+rgb[1], +rgb[2], +rgb[3]];
+  const hsl = color.match(/hsl\(\s*([\d.]+)\s*[, ]\s*([\d.]+)%\s*[, ]\s*([\d.]+)%/i);
+  if (hsl) {
+    const h = +hsl[1];
+    const s = +hsl[2] / 100;
+    const l = +hsl[3] / 100;
+    const k = (n) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))];
+  }
   return [128, 128, 128];
 }
 function blendToAccent(candleColor, accentColor, t) {
@@ -1143,7 +1151,7 @@ function roundedRect(ctx, x, y, w, h, r) {
   ctx.arcTo(x, y, x + r, y, r);
   ctx.closePath();
 }
-function drawCandlesticks(ctx, layout, candles, candleWidthSecs, liveTime, now_ms, scrubX, scrubDim, liveAlpha = 1, liveBullBlend = -1, accentColor, accentBlend = 0) {
+function drawCandlesticks(ctx, layout, palette, candles, candleWidthSecs, liveTime, now_ms, scrubX, scrubDim, liveAlpha = 1, liveBullBlend = -1, accentColor, accentBlend = 0) {
   if (candles.length === 0) return;
   const { toX, toY } = layout;
   const { bodyW, wickW, radius } = candleDims(layout, candleWidthSecs);
@@ -1156,7 +1164,7 @@ function drawCandlesticks(ctx, layout, candles, candleWidthSecs, liveTime, now_m
     if (cx + halfBody < padL || cx - halfBody > padR) continue;
     const isBull = c.close >= c.open;
     const isLive = c.time === liveTime;
-    let color = isLive && liveBullBlend >= 0 ? blendColor2(liveBullBlend) : isBull ? BULL : BEAR;
+    let color = isLive && liveBullBlend >= 0 ? blendColor2(liveBullBlend, palette.candleUp, palette.candleDown) : isBull ? palette.candleUp : palette.candleDown;
     if (accentColor && accentBlend > 0.01) {
       color = blendToAccent(color, accentColor, accentBlend);
     }
@@ -1214,7 +1222,7 @@ function drawClosePrice(ctx, layout, palette, liveCandle, scrubDim, bullBlend = 
   const y = layout.toY(liveCandle.close);
   if (y < layout.pad.top || y > layout.h - layout.pad.bottom) return;
   const isBull = liveCandle.close >= liveCandle.open;
-  const color = bullBlend >= 0 ? blendColor2(bullBlend) : isBull ? BULL : BEAR;
+  const color = bullBlend >= 0 ? blendColor2(bullBlend, palette.candleUp, palette.candleDown) : isBull ? palette.candleUp : palette.candleDown;
   const baseAlpha = ctx.globalAlpha;
   ctx.save();
   ctx.setLineDash([4, 4]);
@@ -1242,7 +1250,7 @@ function drawCandleCrosshair(ctx, layout, palette, hoverX, candle, hoverTime, fo
   ctx.restore();
   if (opacity < 0.1 || layout.w < 200) return;
   const isBull = candle.close >= candle.open;
-  const valueColor = isBull ? BULL : BEAR;
+  const valueColor = isBull ? palette.candleUp : palette.candleDown;
   const cl = formatValue(candle.close);
   const time = formatTime(hoverTime);
   ctx.save();
@@ -1776,6 +1784,7 @@ function drawCandleFrame(ctx, layout, palette, opts) {
       drawCandlesticks(
         ctx,
         layout,
+        palette,
         revealOld,
         opts.oldWidth,
         -1,
@@ -1791,6 +1800,7 @@ function drawCandleFrame(ctx, layout, palette, opts) {
       drawCandlesticks(
         ctx,
         layout,
+        palette,
         revealCandles,
         opts.displayCandleWidth,
         opts.liveCandle?.time ?? -1,
@@ -1808,6 +1818,7 @@ function drawCandleFrame(ctx, layout, palette, opts) {
       drawCandlesticks(
         ctx,
         layout,
+        palette,
         revealCandles,
         opts.displayCandleWidth,
         opts.liveCandle?.time ?? -1,

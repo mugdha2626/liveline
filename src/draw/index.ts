@@ -575,13 +575,13 @@ export function drawCandleFrame(
     if (opts.morphT >= 0 && revealOld.length > 0) {
       ctx.globalAlpha = (1 - opts.morphT) * candleAlpha
       drawCandlesticks(
-        ctx, layout, revealOld, opts.oldWidth,
+        ctx, layout, palette, revealOld, opts.oldWidth,
         -1, opts.now_ms, opts.hoverX ?? 0, opts.scrubAmount,
         1, -1, accentCol, lp,
       )
       ctx.globalAlpha = opts.morphT * candleAlpha
       drawCandlesticks(
-        ctx, layout, revealCandles, opts.displayCandleWidth,
+        ctx, layout, palette, revealCandles, opts.displayCandleWidth,
         opts.liveCandle?.time ?? -1, opts.now_ms,
         opts.hoverX ?? 0, opts.scrubAmount,
         opts.liveBirthAlpha, opts.liveBullBlend,
@@ -591,7 +591,7 @@ export function drawCandleFrame(
     } else {
       if (candleAlpha < 1) ctx.globalAlpha = candleAlpha
       drawCandlesticks(
-        ctx, layout, revealCandles, opts.displayCandleWidth,
+        ctx, layout, palette, revealCandles, opts.displayCandleWidth,
         opts.liveCandle?.time ?? -1, opts.now_ms,
         opts.hoverX ?? 0, opts.scrubAmount,
         opts.liveBirthAlpha, opts.liveBullBlend,

@@ -119,6 +119,8 @@ interface LivelinePalette {
     glowUp: string;
     glowDown: string;
     glowFlat: string;
+    candleUp: string;
+    candleDown: string;
     badgeOuterBg: string;
     badgeOuterShadow: string;
     badgeBg: string;

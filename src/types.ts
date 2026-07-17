@@ -160,6 +160,10 @@ export interface LivelinePalette {
   glowDown: string
   glowFlat: string
 
+  // Candlestick body/wick colors (bull / bear)
+  candleUp: string
+  candleDown: string
+
   // Badge
   badgeOuterBg: string
   badgeOuterShadow: string

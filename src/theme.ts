@@ -46,6 +46,10 @@ export function resolveTheme(color: string, mode: ThemeMode): LivelinePalette {
     glowDown: 'rgba(239, 68, 68, 0.18)',
     glowFlat: rgba(r, g, b, 0.12),
 
+    // Candlesticks — semantic green/red, overridable via the palette prop
+    candleUp: '#22c55e',
+    candleDown: '#ef4444',
+
     // Badge
     badgeOuterBg: isDark ? 'rgba(40, 40, 40, 0.95)' : 'rgba(255, 255, 255, 0.95)',
     badgeOuterShadow: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.15)',

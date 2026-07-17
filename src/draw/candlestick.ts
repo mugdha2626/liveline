@@ -2,22 +2,14 @@ import type { ChartLayout, LivelinePalette, CandlePoint } from '../types'
 
 export type { CandlePoint } from '../types'
 
-const BULL = '#22c55e'
-const BEAR = '#ef4444'
-
-// Pre-parsed RGB for fast interpolation
-const BULL_RGB = [34, 197, 94] as const
-const BEAR_RGB = [239, 68, 68] as const
-
-/** Blend bear→bull by t (0=bear, 1=bull). */
-function blendColor(t: number): string {
-  const r = Math.round(BEAR_RGB[0] + (BULL_RGB[0] - BEAR_RGB[0]) * t)
-  const g = Math.round(BEAR_RGB[1] + (BULL_RGB[1] - BEAR_RGB[1]) * t)
-  const b = Math.round(BEAR_RGB[2] + (BULL_RGB[2] - BEAR_RGB[2]) * t)
-  return `rgb(${r},${g},${b})`
+/** Blend down→up by t (0=down, 1=up), using any CSS color strings. */
+function blendColor(t: number, up: string, down: string): string {
+  const [ur, ug, ub] = parseRgb(up)
+  const [dr, dg, db] = parseRgb(down)
+  return `rgb(${Math.round(dr + (ur - dr) * t)},${Math.round(dg + (ug - dg) * t)},${Math.round(db + (ub - db) * t)})`
 }
 
-/** Parse "#rrggbb" or "rgb(r,g,b)" to [r,g,b]. */
+/** Parse "#rrggbb", "rgb(r,g,b)", or "hsl(h s% l%)" to [r,g,b]. */
 function parseRgb(color: string): [number, number, number] {
   const hex = color.match(/^#([0-9a-f]{6})$/i)
   if (hex) {
@@ -26,6 +18,16 @@ function parseRgb(color: string): [number, number, number] {
   }
   const rgb = color.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
   if (rgb) return [+rgb[1], +rgb[2], +rgb[3]]
+  const hsl = color.match(/hsl\(\s*([\d.]+)\s*[, ]\s*([\d.]+)%\s*[, ]\s*([\d.]+)%/i)
+  if (hsl) {
+    const h = +hsl[1]
+    const s = +hsl[2] / 100
+    const l = +hsl[3] / 100
+    const k = (n: number) => (n + h / 30) % 12
+    const a = s * Math.min(l, 1 - l)
+    const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))
+    return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))]
+  }
   return [128, 128, 128]
 }
 
@@ -83,6 +85,7 @@ function roundedRect(
 export function drawCandlesticks(
   ctx: CanvasRenderingContext2D,
   layout: ChartLayout,
+  palette: LivelinePalette,
   candles: CandlePoint[],
   candleWidthSecs: number,
   liveTime: number,
@@ -111,7 +114,7 @@ export function drawCandlesticks(
 
     const isBull = c.close >= c.open
     const isLive = c.time === liveTime
-    let color = isLive && liveBullBlend >= 0 ? blendColor(liveBullBlend) : (isBull ? BULL : BEAR)
+    let color = isLive && liveBullBlend >= 0 ? blendColor(liveBullBlend, palette.candleUp, palette.candleDown) : (isBull ? palette.candleUp : palette.candleDown)
     if (accentColor && accentBlend > 0.01) {
       color = blendToAccent(color, accentColor, accentBlend)
     }
@@ -195,7 +198,7 @@ export function drawClosePrice(
   if (y < layout.pad.top || y > layout.h - layout.pad.bottom) return
 
   const isBull = liveCandle.close >= liveCandle.open
-  const color = bullBlend >= 0 ? blendColor(bullBlend) : (isBull ? BULL : BEAR)
+  const color = bullBlend >= 0 ? blendColor(bullBlend, palette.candleUp, palette.candleDown) : (isBull ? palette.candleUp : palette.candleDown)
 
   const baseAlpha = ctx.globalAlpha
   ctx.save()
@@ -245,7 +248,7 @@ export function drawCandleCrosshair(
   if (opacity < 0.1 || layout.w < 200) return
 
   const isBull = candle.close >= candle.open
-  const valueColor = isBull ? BULL : BEAR
+  const valueColor = isBull ? palette.candleUp : palette.candleDown
 
   const cl = formatValue(candle.close)
   const time = formatTime(hoverTime)
