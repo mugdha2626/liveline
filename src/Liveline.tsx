@@ -46,6 +46,8 @@ export function Liveline({
   lerpSpeed = 0.08,
   padding: paddingOverride,
   onHover,
+  palette: paletteOverride,
+  onViewport,
   cursor = 'crosshair',
   pulse = true,
   mode = 'line',
@@ -78,8 +80,8 @@ export function Liveline({
   const palette = useMemo(() => {
     const p = resolveTheme(color, theme)
     if (lineWidth != null) p.lineWidth = lineWidth
-    return p
-  }, [color, theme, lineWidth])
+    return paletteOverride ? { ...p, ...paletteOverride } : p
+  }, [color, theme, lineWidth, paletteOverride])
   const isDark = theme === 'dark'
   const isMultiSeries = seriesProp != null && seriesProp.length > 0
   const showSeriesToggle = (lastSeriesPropRef.current?.length ?? 0) > 1
@@ -197,6 +199,7 @@ export function Liveline({
     formatTime,
     padding: pad,
     onHover,
+    onViewport,
     showPulse: pulse,
     scrub,
     exaggerate,

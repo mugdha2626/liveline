@@ -16,4 +16,7 @@ export type {
   DegenOptions,
   WindowStyle,
   BadgeVariant,
+  Viewport,
+  LivelinePalette,
+  ChartLayout,
 } from './types'

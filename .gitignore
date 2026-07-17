@@ -1,5 +1,5 @@
 node_modules/
-dist/
+# dist/ is committed so this fork can be consumed as a git dependency without a build step
 *.log
 .DS_Store
 *.tsbuildinfo

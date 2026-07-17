@@ -105,6 +105,12 @@ export interface LivelineProps {
   lerpSpeed?: number
   padding?: Padding
   onHover?: (point: HoverPoint | null) => void
+
+  // Theming + overlays
+  /** Override any resolved palette color/font; merged over the theme palette. */
+  palette?: Partial<LivelinePalette>
+  /** Per-frame scale + head position, for aligning custom React/SVG overlays. */
+  onViewport?: (v: Viewport) => void
   cursor?: string          // CSS cursor on hover (default: 'crosshair')
   pulse?: boolean          // Pulsing ring on live dot (default: true)
   lineWidth?: number       // Stroke width of the main line in px (default: 2)
@@ -198,4 +204,31 @@ export interface ChartLayout {
   valRange: number
   toX: (t: number) => number
   toY: (v: number) => number
+}
+
+/**
+ * A snapshot of the current draw scale, emitted each frame via `onViewport`.
+ * Lets a consumer position custom overlays (head markers, target lines,
+ * crosshairs) in perfect alignment with the canvas.
+ */
+export interface Viewport {
+  /** Map a unix-seconds timestamp to a canvas x pixel. */
+  toX: (t: number) => number
+  /** Map a value to a canvas y pixel. */
+  toY: (v: number) => number
+  /** Unix seconds at the left/right visible edges. */
+  leftEdge: number
+  rightEdge: number
+  /** Value range currently displayed on the y-axis. */
+  minVal: number
+  maxVal: number
+  /** Plot-area (inside padding) and full canvas dimensions. */
+  chartW: number
+  chartH: number
+  w: number
+  h: number
+  pad: Required<Padding>
+  /** Unix seconds at the live head, and the eased value drawn there. */
+  now: number
+  headValue: number
 }

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react'
-import type { LivelinePoint, LivelinePalette, LivelineSeries, Momentum, ReferenceLine, HoverPoint, Padding, ChartLayout, OrderbookData, DegenOptions, BadgeVariant, CandlePoint } from './types'
+import type { LivelinePoint, LivelinePalette, LivelineSeries, Momentum, ReferenceLine, HoverPoint, Padding, ChartLayout, OrderbookData, DegenOptions, BadgeVariant, CandlePoint, Viewport } from './types'
 import { lerp } from './math/lerp'
 import { computeRange } from './math/range'
 import { detectMomentum } from './math/momentum'
@@ -30,6 +30,7 @@ interface EngineConfig {
   formatTime: (t: number) => string
   padding: Required<Padding>
   onHover?: (point: HoverPoint | null) => void
+  onViewport?: (v: Viewport) => void
   showPulse: boolean
   scrub: boolean
   exaggerate: boolean
@@ -1241,6 +1242,13 @@ export function useLivelineEngine(
         toY: (v: number) => pad.top + (1 - (v - minVal) / valRange) * chartH,
       }
 
+      cfg.onViewport?.({
+        toX: layout.toX, toY: layout.toY,
+        leftEdge, rightEdge, minVal, maxVal,
+        chartW, chartH, w, h, pad,
+        now, headValue: smoothLive?.close ?? maxVal,
+      })
+
       // --- Hover + scrub ---
       const hoverPx = hoverXRef.current
       let hoveredCandle: CandlePoint | null = null
@@ -1807,6 +1815,13 @@ export function useLivelineEngine(
       toX: (t: number) => pad.left + ((t - leftEdge) / (rightEdge - leftEdge)) * chartW,
       toY: (v: number) => pad.top + (1 - (v - minVal) / valRange) * chartH,
     }
+
+    cfg.onViewport?.({
+      toX: layout.toX, toY: layout.toY,
+      leftEdge, rightEdge, minVal, maxVal,
+      chartW, chartH, w, h, pad,
+      now, headValue: smoothValue,
+    })
 
     // Momentum
     const momentum: Momentum = cfg.momentumOverride ?? detectMomentum(visible)
