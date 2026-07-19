@@ -2677,7 +2677,7 @@ function useLivelineEngine(canvasRef, containerRef, config) {
     if (isCandle) {
       const candleBuffer = CANDLE_BUFFER_NO_BADGE;
       if (hasData) frozenNowRef.current = Date.now() / 1e3 - timeDebtRef.current;
-      const now = hasData || chartReveal < 5e-3 ? Date.now() / 1e3 - timeDebtRef.current : frozenNowRef.current;
+      const now = cfg.nowOverride ?? (hasData || chartReveal < 5e-3 ? Date.now() / 1e3 - timeDebtRef.current : frozenNowRef.current);
       const rawLive = pausedCandlesRef.current ? pausedLiveRef.current ?? void 0 : cfg.liveCandle;
       let effectiveLineData = pausedLineDataRef.current ?? cfg.lineData;
       let effectiveLineValue = pausedLineValueRef.current ?? cfg.lineValue;
@@ -3119,7 +3119,7 @@ function useLivelineEngine(canvasRef, containerRef, config) {
       const firstSeries = effectiveMultiSeries[0];
       const transition = windowTransitionRef.current;
       if (hasData) frozenNowRef.current = Date.now() / 1e3 - timeDebtRef.current;
-      const now = useMultiStash ? frozenNowRef.current : Date.now() / 1e3 - timeDebtRef.current;
+      const now = cfg.nowOverride ?? (useMultiStash ? frozenNowRef.current : Date.now() / 1e3 - timeDebtRef.current);
       const smoothValues = /* @__PURE__ */ new Map();
       for (const s of effectiveMultiSeries) {
         let dv = displayValuesRef.current.get(s.id);
@@ -3364,7 +3364,7 @@ function useLivelineEngine(canvasRef, containerRef, config) {
       const buffer = needsArrowRoom ? Math.max(baseBuffer, 37 / Math.max(chartW, 1)) : baseBuffer;
       const transition = windowTransitionRef.current;
       if (hasData) frozenNowRef.current = Date.now() / 1e3 - timeDebtRef.current;
-      const now = useStash ? frozenNowRef.current : Date.now() / 1e3 - timeDebtRef.current;
+      const now = cfg.nowOverride ?? (useStash ? frozenNowRef.current : Date.now() / 1e3 - timeDebtRef.current);
       const windowResult = updateWindowTransition(
         cfg,
         transition,
@@ -3590,6 +3590,7 @@ function Liveline({
   emptyText,
   exaggerate = false,
   minRange,
+  nowOverride,
   degen: degenProp,
   badgeTail = true,
   badgeVariant = "default",
@@ -3739,6 +3740,7 @@ function Liveline({
     scrub,
     exaggerate,
     minRange,
+    nowOverride,
     degenOptions: isMultiSeries ? void 0 : degenOptions,
     badgeTail,
     badgeVariant,

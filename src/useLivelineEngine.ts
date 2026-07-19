@@ -35,6 +35,7 @@ interface EngineConfig {
   scrub: boolean
   exaggerate: boolean
   minRange?: number
+  nowOverride?: number
   degenOptions?: DegenOptions
   badgeTail: boolean
   badgeVariant: BadgeVariant
@@ -998,9 +999,9 @@ export function useLivelineEngine(
 
       // Frozen now — prevent candles from scrolling during reverse morph
       if (hasData) frozenNowRef.current = Date.now() / 1000 - timeDebtRef.current
-      const now = (hasData || chartReveal < 0.005)
+      const now = cfg.nowOverride ?? ((hasData || chartReveal < 0.005)
         ? Date.now() / 1000 - timeDebtRef.current
-        : frozenNowRef.current
+        : frozenNowRef.current)
       const rawLive = pausedCandlesRef.current ? (pausedLiveRef.current ?? undefined) : cfg.liveCandle
       let effectiveLineData = pausedLineDataRef.current ?? cfg.lineData
       let effectiveLineValue = pausedLineValueRef.current ?? cfg.lineValue
@@ -1490,7 +1491,7 @@ export function useLivelineEngine(
     const firstSeries = effectiveMultiSeries[0]
     const transition = windowTransitionRef.current
     if (hasData) frozenNowRef.current = Date.now() / 1000 - timeDebtRef.current
-    const now = useMultiStash ? frozenNowRef.current : Date.now() / 1000 - timeDebtRef.current
+    const now = cfg.nowOverride ?? (useMultiStash ? frozenNowRef.current : Date.now() / 1000 - timeDebtRef.current)
 
     // Per-series smooth values (freeze when using stash)
     const smoothValues = new Map<string, number>()
@@ -1762,7 +1763,7 @@ export function useLivelineEngine(
     // Window transition
     const transition = windowTransitionRef.current
     if (hasData) frozenNowRef.current = Date.now() / 1000 - timeDebtRef.current
-    const now = useStash ? frozenNowRef.current : Date.now() / 1000 - timeDebtRef.current
+    const now = cfg.nowOverride ?? (useStash ? frozenNowRef.current : Date.now() / 1000 - timeDebtRef.current)
     const windowResult = updateWindowTransition(
       cfg, transition, displayWindowRef.current,
       displayMinRef.current, displayMaxRef.current,

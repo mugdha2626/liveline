@@ -79,6 +79,7 @@ export interface LivelineProps {
   scrub?: boolean           // Enable crosshair scrubbing on hover (default: true)
   exaggerate?: boolean      // Tight Y-axis range — small moves fill chart height (default: false)
   minRange?: number         // Absolute minimum y-axis span, so tiny moves stay small (default: off)
+  nowOverride?: number      // Pin the window's right edge to this unix-seconds time instead of Date.now() (for frozen/historical views)
   showValue?: boolean       // Show live value as DOM text overlay (default: false)
   valueMomentumColor?: boolean // Color the value text by momentum — green/red (default: false)
   degen?: boolean | DegenOptions  // Degen mode — burst particles + chart shake on momentum swings (default: false)
