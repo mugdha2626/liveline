@@ -3358,23 +3358,14 @@ function useLivelineEngine(canvasRef, containerRef, config) {
       const leftEdge = rightEdge - windowSecs;
       const filterRight = rightEdge - (rightEdge - now) * pauseProgress;
       const visible = [];
+      let anchor;
       for (const p of effectivePoints) {
-        if (p.time >= leftEdge - 2 && p.time <= filterRight) {
-          visible.push(p);
-        }
+        if (p.time > filterRight) continue;
+        if (p.time < leftEdge - 2) anchor = p;
+        else visible.push(p);
       }
-      if (visible.length > 0 && visible[0].time > leftEdge) {
-        let prev;
-        for (const p of effectivePoints) {
-          if (p.time <= leftEdge) prev = p;
-          else break;
-        }
-        if (prev) {
-          const p1 = visible[0];
-          const span = p1.time - prev.time;
-          const edgeValue = span > 0 ? prev.value + (p1.value - prev.value) * ((leftEdge - prev.time) / span) : prev.value;
-          visible.unshift({ time: leftEdge, value: edgeValue });
-        }
+      if (anchor && (visible.length === 0 || visible[0].time > leftEdge)) {
+        visible.unshift(anchor);
       }
       if (visible.length < 2) {
         if (badgeRef.current) badgeRef.current.container.style.display = "none";

@@ -9,7 +9,11 @@ export function computeRange(
   currentValue: number,
   referenceValue?: number,
   exaggerate?: boolean,
-  /** Absolute minimum y-axis span; keeps tiny moves from filling the chart. */
+  /**
+   * Absolute floor on the y-axis span. The counterpart to `exaggerate`: where
+   * that zooms in on small moves, this stops a near-flat window from being
+   * zoomed until cent-level ticks fill the whole canvas.
+   */
   minSpan = 0,
 ): { min: number; max: number } {
   let targetMin = Infinity
@@ -43,7 +47,6 @@ export function computeRange(
     targetMax += margin
   }
 
-  // Absolute floor: keep a minimum span so tiny moves don't fill the chart.
   if (minSpan > 0 && targetMax - targetMin < minSpan) {
     const mid = (targetMin + targetMax) / 2
     targetMin = mid - minSpan / 2
