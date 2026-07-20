@@ -50,6 +50,7 @@ export function resolveTheme(color: string, mode: ThemeMode): LivelinePalette {
     candleUp: '#22c55e',
     candleDown: '#ef4444',
     candleBodyRatio: 0.7,
+    gridLabelGap: 36,
 
     // Badge
     badgeOuterBg: isDark ? 'rgba(40, 40, 40, 0.95)' : 'rgba(255, 255, 255, 0.95)',

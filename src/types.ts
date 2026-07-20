@@ -153,6 +153,8 @@ export interface LivelinePalette {
   // Grid
   gridLine: string
   gridLabel: string
+  /** Minimum px between y-axis labels; smaller means finer intervals (default 36). */
+  gridLabelGap: number
 
   // Dot
   dotUp: string

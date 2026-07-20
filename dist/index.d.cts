@@ -115,6 +115,8 @@ interface LivelinePalette {
     fillBottom: string;
     gridLine: string;
     gridLabel: string;
+    /** Minimum px between y-axis labels; smaller means finer intervals (default 36). */
+    gridLabelGap: number;
     dotUp: string;
     dotDown: string;
     dotFlat: string;

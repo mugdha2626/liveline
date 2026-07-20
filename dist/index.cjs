@@ -67,6 +67,7 @@ function resolveTheme(color, mode) {
     candleUp: "#22c55e",
     candleDown: "#ef4444",
     candleBodyRatio: 0.7,
+    gridLabelGap: 36,
     // Badge
     badgeOuterBg: isDark ? "rgba(40, 40, 40, 0.95)" : "rgba(255, 255, 255, 0.95)",
     badgeOuterShadow: isDark ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.15)",
@@ -246,7 +247,7 @@ function drawGrid(ctx, layout, palette, formatValue, state, dt) {
   const chartH = h - pad.top - pad.bottom;
   if (chartH <= 0 || valRange <= 0) return;
   const pxPerUnit = chartH / valRange;
-  const coarse = pickInterval(valRange, pxPerUnit, 36, state.interval);
+  const coarse = pickInterval(valRange, pxPerUnit, palette.gridLabelGap, state.interval);
   state.interval = coarse;
   const fine = coarse / 2;
   const finePx = fine * pxPerUnit;
