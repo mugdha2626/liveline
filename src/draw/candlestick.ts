@@ -46,10 +46,10 @@ function blendToAccent(candleColor: string, accentColor: string, t: number): str
 /**
  * Compute pixel dimensions for candle rendering.
  */
-function candleDims(layout: ChartLayout, candleWidthSecs: number) {
+function candleDims(layout: ChartLayout, candleWidthSecs: number, bodyRatio = 0.7) {
   const pxPerSec = layout.chartW / (layout.rightEdge - layout.leftEdge)
   const candlePxW = candleWidthSecs * pxPerSec
-  const bodyW = Math.max(1, candlePxW * 0.7)
+  const bodyW = Math.max(1, candlePxW * bodyRatio)
   const wickW = Math.max(0.8, Math.min(2, bodyW * 0.15))
   const radius = bodyW > 6 ? 1.5 : 0
   return { bodyW, wickW, radius }
@@ -100,7 +100,7 @@ export function drawCandlesticks(
   if (candles.length === 0) return
 
   const { toX, toY } = layout
-  const { bodyW, wickW, radius } = candleDims(layout, candleWidthSecs)
+  const { bodyW, wickW, radius } = candleDims(layout, candleWidthSecs, palette.candleBodyRatio)
   const halfBody = bodyW / 2
   const padL = layout.pad.left
   const padR = layout.pad.left + layout.chartW

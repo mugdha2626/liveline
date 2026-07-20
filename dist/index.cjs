@@ -66,6 +66,7 @@ function resolveTheme(color, mode) {
     // Candlesticks — semantic green/red, overridable via the palette prop
     candleUp: "#22c55e",
     candleDown: "#ef4444",
+    candleBodyRatio: 0.7,
     // Badge
     badgeOuterBg: isDark ? "rgba(40, 40, 40, 0.95)" : "rgba(255, 255, 255, 0.95)",
     badgeOuterShadow: isDark ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.15)",
@@ -1159,10 +1160,10 @@ function blendToAccent(candleColor, accentColor, t) {
   const b = Math.round(b1 + (b2 - b1) * t);
   return `rgb(${r},${g},${b})`;
 }
-function candleDims(layout, candleWidthSecs) {
+function candleDims(layout, candleWidthSecs, bodyRatio = 0.7) {
   const pxPerSec = layout.chartW / (layout.rightEdge - layout.leftEdge);
   const candlePxW = candleWidthSecs * pxPerSec;
-  const bodyW = Math.max(1, candlePxW * 0.7);
+  const bodyW = Math.max(1, candlePxW * bodyRatio);
   const wickW = Math.max(0.8, Math.min(2, bodyW * 0.15));
   const radius = bodyW > 6 ? 1.5 : 0;
   return { bodyW, wickW, radius };
@@ -1186,7 +1187,7 @@ function roundedRect(ctx, x, y, w, h, r) {
 function drawCandlesticks(ctx, layout, palette, candles, candleWidthSecs, liveTime, now_ms, scrubX, scrubDim, liveAlpha = 1, liveBullBlend = -1, accentColor, accentBlend = 0) {
   if (candles.length === 0) return;
   const { toX, toY } = layout;
-  const { bodyW, wickW, radius } = candleDims(layout, candleWidthSecs);
+  const { bodyW, wickW, radius } = candleDims(layout, candleWidthSecs, palette.candleBodyRatio);
   const halfBody = bodyW / 2;
   const padL = layout.pad.left;
   const padR = layout.pad.left + layout.chartW;

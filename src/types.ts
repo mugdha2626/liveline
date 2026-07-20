@@ -165,6 +165,8 @@ export interface LivelinePalette {
   // Candlestick body/wick colors (bull / bear)
   candleUp: string
   candleDown: string
+  /** Body width as a fraction of the candle's time slot (default 0.7). */
+  candleBodyRatio: number
 
   // Badge
   badgeOuterBg: string

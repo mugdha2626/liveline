@@ -123,6 +123,8 @@ interface LivelinePalette {
     glowFlat: string;
     candleUp: string;
     candleDown: string;
+    /** Body width as a fraction of the candle's time slot (default 0.7). */
+    candleBodyRatio: number;
     badgeOuterBg: string;
     badgeOuterShadow: string;
     badgeBg: string;
