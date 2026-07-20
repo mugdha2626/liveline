@@ -9,7 +9,6 @@ export type Momentum = 'up' | 'down' | 'flat'
 export type ThemeMode = 'light' | 'dark'
 export type WindowStyle = 'default' | 'rounded' | 'text'
 export type BadgeVariant = 'default' | 'minimal'
-export type CurveMode = 'monotone' | 'linear'
 
 export interface ReferenceLine {
   value: number
@@ -106,7 +105,6 @@ export interface LivelineProps {
   formatValue?: (v: number) => string
   formatTime?: (t: number) => string
   lerpSpeed?: number
-  curve?: CurveMode         // 'monotone' (default) smooths through points; 'linear' joins them with straight segments, better for feeds that repeat values
   padding?: Padding
   onHover?: (point: HoverPoint | null) => void
 

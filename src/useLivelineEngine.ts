@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react'
-import type { CurveMode, LivelinePoint, LivelinePalette, LivelineSeries, Momentum, ReferenceLine, HoverPoint, Padding, ChartLayout, OrderbookData, DegenOptions, BadgeVariant, CandlePoint, Viewport } from './types'
+import type { LivelinePoint, LivelinePalette, LivelineSeries, Momentum, ReferenceLine, HoverPoint, Padding, ChartLayout, OrderbookData, DegenOptions, BadgeVariant, CandlePoint, Viewport } from './types'
 import { lerp } from './math/lerp'
 import { computeRange } from './math/range'
 import { detectMomentum } from './math/momentum'
@@ -34,7 +34,6 @@ interface EngineConfig {
   showPulse: boolean
   scrub: boolean
   exaggerate: boolean
-  curve?: CurveMode
   minRange?: number
   nowOverride?: number
   degenOptions?: DegenOptions
@@ -1887,7 +1886,6 @@ export function useLivelineEngine(
       chartReveal,
       pauseProgress,
       now_ms,
-      curve: cfg.curve,
     })
 
     // During morph (chart ↔ empty), overlay the gradient gap + text on

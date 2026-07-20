@@ -358,9 +358,6 @@ function drawSpline(ctx, pts) {
     );
   }
 }
-function drawPolyline(ctx, pts) {
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-}
 
 // src/draw/loadingShape.ts
 var LOADING_AMPLITUDE_RATIO = 0.07;
@@ -398,8 +395,7 @@ function blendColor(c1, c2, t) {
   if (a >= 0.995) return `rgb(${r},${g},${b})`;
   return `rgba(${r},${g},${b},${a.toFixed(3)})`;
 }
-function renderCurve(ctx, layout, palette, pts, showFill, lineAlpha = 1, fillAlpha = 1, strokeColor, curve = "monotone") {
-  const trace = curve === "linear" ? drawPolyline : drawSpline;
+function renderCurve(ctx, layout, palette, pts, showFill, lineAlpha = 1, fillAlpha = 1, strokeColor) {
   const { h, pad } = layout;
   const baseAlpha = ctx.globalAlpha;
   if (showFill && fillAlpha > 0.01) {
@@ -410,7 +406,7 @@ function renderCurve(ctx, layout, palette, pts, showFill, lineAlpha = 1, fillAlp
     ctx.beginPath();
     ctx.moveTo(pts[0][0], h - pad.bottom);
     ctx.lineTo(pts[0][0], pts[0][1]);
-    trace(ctx, pts);
+    drawSpline(ctx, pts);
     ctx.lineTo(pts[pts.length - 1][0], h - pad.bottom);
     ctx.closePath();
     ctx.fillStyle = grad;
@@ -419,7 +415,7 @@ function renderCurve(ctx, layout, palette, pts, showFill, lineAlpha = 1, fillAlp
   ctx.globalAlpha = baseAlpha * lineAlpha;
   ctx.beginPath();
   ctx.moveTo(pts[0][0], pts[0][1]);
-  trace(ctx, pts);
+  drawSpline(ctx, pts);
   ctx.strokeStyle = strokeColor ?? palette.line;
   ctx.lineWidth = palette.lineWidth;
   ctx.lineJoin = "round";
@@ -427,7 +423,7 @@ function renderCurve(ctx, layout, palette, pts, showFill, lineAlpha = 1, fillAlp
   ctx.stroke();
   ctx.globalAlpha = baseAlpha;
 }
-function drawLine(ctx, layout, palette, visible, smoothValue, now, showFill, scrubX, scrubAmount = 0, chartReveal = 1, now_ms = 0, colorBlend = 1, skipDashLine = false, fillScale = 1, curve = "monotone") {
+function drawLine(ctx, layout, palette, visible, smoothValue, now, showFill, scrubX, scrubAmount = 0, chartReveal = 1, now_ms = 0, colorBlend = 1, skipDashLine = false, fillScale = 1) {
   const { h, pad, toX, toY, chartW, chartH } = layout;
   const incomingAlpha = ctx.globalAlpha;
   const yMin = pad.top;
@@ -472,17 +468,17 @@ function drawLine(ctx, layout, palette, visible, smoothValue, now, showFill, scr
     ctx.beginPath();
     ctx.rect(0, 0, scrubX, h);
     ctx.clip();
-    renderCurve(ctx, layout, palette, pts, showFill, lineAlpha, fillAlpha, strokeColor, curve);
+    renderCurve(ctx, layout, palette, pts, showFill, lineAlpha, fillAlpha, strokeColor);
     ctx.restore();
     ctx.save();
     ctx.beginPath();
     ctx.rect(scrubX, 0, layout.w - scrubX, h);
     ctx.clip();
     ctx.globalAlpha = incomingAlpha * (1 - scrubAmount * 0.6);
-    renderCurve(ctx, layout, palette, pts, showFill, lineAlpha, fillAlpha, strokeColor, curve);
+    renderCurve(ctx, layout, palette, pts, showFill, lineAlpha, fillAlpha, strokeColor);
     ctx.restore();
   } else {
-    renderCurve(ctx, layout, palette, pts, showFill, lineAlpha, fillAlpha, strokeColor, curve);
+    renderCurve(ctx, layout, palette, pts, showFill, lineAlpha, fillAlpha, strokeColor);
   }
   ctx.restore();
   if (!skipDashLine) {
@@ -1514,7 +1510,7 @@ function drawFrame(ctx, layout, palette, opts) {
     ctx.restore();
   }
   const scrubX = opts.scrubAmount > 0.05 ? opts.hoverX : null;
-  const pts = drawLine(ctx, layout, palette, opts.visible, opts.smoothValue, opts.now, opts.showFill, scrubX, opts.scrubAmount, reveal, opts.now_ms, 1, false, 1, opts.curve);
+  const pts = drawLine(ctx, layout, palette, opts.visible, opts.smoothValue, opts.now, opts.showFill, scrubX, opts.scrubAmount, reveal, opts.now_ms);
   {
     const timeAlpha = reveal < 1 ? revealRamp(0.15, 0.7) : 1;
     if (timeAlpha > 0.01) {
@@ -3509,8 +3505,7 @@ function useLivelineEngine(canvasRef, containerRef, config) {
         shakeState: cfg.degenOptions ? shakeStateRef.current : void 0,
         chartReveal,
         pauseProgress,
-        now_ms,
-        curve: cfg.curve
+        now_ms
       });
       const bgAlpha = 1 - chartReveal;
       if (bgAlpha > 0.01 && revealTarget === 0 && !cfg.loading) {
@@ -3602,7 +3597,6 @@ function Liveline({
   formatValue = defaultFormatValue,
   formatTime = defaultFormatTime,
   lerpSpeed = 0.08,
-  curve,
   padding: paddingOverride,
   onHover,
   palette: paletteOverride,
@@ -3722,7 +3716,6 @@ function Liveline({
     palette,
     windowSecs: effectiveWindowSecs,
     lerpSpeed,
-    curve,
     showGrid: grid,
     showBadge: isMultiSeries ? false : badge,
     showMomentum: isMultiSeries ? false : showMomentum,
