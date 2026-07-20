@@ -69,3 +69,17 @@ export function drawSpline(
     )
   }
 }
+
+/**
+ * Straight segments between points. For feeds that repeat values (a last-trade
+ * price that holds between prints), the monotone spline is forced to zero the
+ * tangents on both ends of every flat run, which renders each move as a right
+ * angle. Joining the same real points with straight lines avoids that and
+ * invents no curvature between samples.
+ */
+export function drawPolyline(
+  ctx: CanvasRenderingContext2D,
+  pts: [number, number][],
+) {
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1])
+}

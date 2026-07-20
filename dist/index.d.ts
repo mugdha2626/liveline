@@ -9,6 +9,7 @@ type Momentum = 'up' | 'down' | 'flat';
 type ThemeMode = 'light' | 'dark';
 type WindowStyle = 'default' | 'rounded' | 'text';
 type BadgeVariant = 'default' | 'minimal';
+type CurveMode = 'monotone' | 'linear';
 interface ReferenceLine {
     value: number;
     label?: string;
@@ -79,6 +80,7 @@ interface LivelineProps {
     formatValue?: (v: number) => string;
     formatTime?: (t: number) => string;
     lerpSpeed?: number;
+    curve?: CurveMode;
     padding?: Padding;
     onHover?: (point: HoverPoint | null) => void;
     /** Override any resolved palette color/font; merged over the theme palette. */
@@ -181,7 +183,7 @@ interface Viewport {
     headValue: number;
 }
 
-declare function Liveline({ data, value, series: seriesProp, theme, color, window: windowSecs, grid, badge, momentum, fill, scrub, loading, paused, emptyText, exaggerate, minRange, nowOverride, degen: degenProp, badgeTail, badgeVariant, showValue, valueMomentumColor, windows, onWindowChange, windowStyle, tooltipY, tooltipOutline, orderbook, referenceLine, formatValue, formatTime, lerpSpeed, padding: paddingOverride, onHover, palette: paletteOverride, onViewport, cursor, pulse, mode, candles, candleWidth, liveCandle, lineMode, lineData, lineValue, onModeChange, onSeriesToggle, seriesToggleCompact, lineWidth, className, style, }: LivelineProps): react_jsx_runtime.JSX.Element;
+declare function Liveline({ data, value, series: seriesProp, theme, color, window: windowSecs, grid, badge, momentum, fill, scrub, loading, paused, emptyText, exaggerate, minRange, nowOverride, degen: degenProp, badgeTail, badgeVariant, showValue, valueMomentumColor, windows, onWindowChange, windowStyle, tooltipY, tooltipOutline, orderbook, referenceLine, formatValue, formatTime, lerpSpeed, curve, padding: paddingOverride, onHover, palette: paletteOverride, onViewport, cursor, pulse, mode, candles, candleWidth, liveCandle, lineMode, lineData, lineValue, onModeChange, onSeriesToggle, seriesToggleCompact, lineWidth, className, style, }: LivelineProps): react_jsx_runtime.JSX.Element;
 
 interface LivelineTransitionProps {
     /** Key of the active child to display. Must match a child's `key` prop. */
